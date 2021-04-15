@@ -1,6 +1,7 @@
 import {Request,response,Response} from 'express'
-import { getRepository } from 'typeorm';
+import { getCustomRepository, getRepository } from 'typeorm';
 import { Orphanage } from '../models/Orphanage';
+import { OrphanageRepository } from '../repositories/OrphanagesRepository';
 
 class OrphanageController{
     async create(req: Request,res: Response){
@@ -29,6 +30,37 @@ class OrphanageController{
 
         return res.status(201).json({message: "Orfanato criado com sucesso"});
 
+    }
+    async index(req: Request, res: Response){
+        const orphanagesRepository = getCustomRepository(OrphanageRepository);
+        const orphanages = await orphanagesRepository.find();
+        return res.status(200).json(orphanages);
+
+    }
+    async show(req: Request, res: Response){
+        const { id } = req.params;
+
+        const orphanageRepository = getCustomRepository(OrphanageRepository);
+
+        const orphanage = await orphanageRepository.findOneOrFail(id);
+
+        return res.status(200).json(orphanage)
+
+    }
+    async delete(req: Request, res: Response){
+        const { id } = req.params;
+
+        const orphanageRepository = getCustomRepository(OrphanageRepository);
+
+        const orphanage = await orphanageRepository.findOne(id);
+
+        if(!orphanage){
+            return res.status(400).json({message: "Orfanato não existe"});
+        }
+
+        await orphanageRepository.delete(id);
+
+        return res.json({message: "Orfanato deletado com sucesso"})
     }
 }
 
