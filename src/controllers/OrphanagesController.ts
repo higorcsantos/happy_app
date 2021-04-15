@@ -16,6 +16,13 @@ class OrphanageController{
         } = req.body;
         const orphanagesRepository = getRepository(Orphanage);
 
+        const requestImage = req.files as Express.Multer.File[];
+
+        const images = requestImage.map(image => {
+            return {path: image.filename}
+        })
+
+
         const orphanage = orphanagesRepository.create({
             name,
             latitude,
@@ -23,12 +30,13 @@ class OrphanageController{
             about,
             instructions,
             opening_hours,
-            open_on_weekends
+            open_on_weekends,
+            images
         });
 
         await orphanagesRepository.save(orphanage);
 
-        return res.status(201).json({message: "Orfanato criado com sucesso"});
+        return res.status(201).json(orphanage);
 
     }
     async index(req: Request, res: Response){
